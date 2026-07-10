@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Fate Mill D20</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE6D2;
+    --paper-deep:#e3d7b8;
+    --ink:#211d16;
+    --ink-soft:#5b5340;
+    --rule:#c9bb95;
+    --wax:#7c3b31;
+    --moss:#3d5a44;
+    --amber:#8a6a24;
+    --card:#f6efe0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px),
+      radial-gradient(ellipse at 50% 0%, var(--paper) 0%, var(--paper-deep) 100%);
+    color:var(--ink);
+    font-family:'IM Fell English', serif;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:48px 20px;
+  }
+  .stage{
+    width:100%;
+    max-width:600px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:30px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:22px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'IM Fell English SC', serif;
+    font-weight:400;
+    font-size:clamp(30px, 6vw, 44px);
+    letter-spacing:0.04em;
+    margin:0;
+    color:var(--ink);
+  }
+  .subtitle{
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:16px;
+    margin-top:8px;
+  }
+
+  /* Question field */
+  .question-wrap{
+    margin-bottom:26px;
+  }
+  .question-wrap label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .question-wrap input{
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:12px 14px;
+    font-family:'IM Fell English', serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--ink);
+  }
+  .question-wrap input:focus{
+    outline:2px solid var(--amber);
+    outline-offset:1px;
+  }
+  .question-wrap input::placeholder{ color:#9a8f6f; }
+
+  /* The die */
+  .die-wrap{
+    display:flex;
+    justify-content:center;
+    margin-bottom:22px;
+  }
+  .die{
+    width:150px;
+    height:150px;
+    position:relative;
+    transform-origin:50% 50%;
+  }
+  .die.rolling{ animation:tumble 0.85s cubic-bezier(.6,.02,.4,.98); }
+  @keyframes tumble{
+    0%{ transform:rotate(0deg) scale(1); }
+    30%{ transform:rotate(260deg) scale(0.94); }
+    60%{ transform:rotate(560deg) scale(1.03); }
+    100%{ transform:rotate(720deg) scale(1); }
+  }
+  .die svg{ width:100%; height:100%; display:block;
+    filter:drop-shadow(0 6px 10px rgba(33,29,22,0.25));
+  }
+  .die-number{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-52%);
+    font-family:'IM Fell English SC', serif;
+    font-size:44px;
+    color:var(--paper);
+  }
+
+  /* Result */
+  .result{
+    text-align:center;
+    margin-bottom:6px;
+    min-height:90px;
+  }
+  .result-phrase{
+    font-family:'IM Fell English SC', serif;
+    font-size:clamp(26px, 5vw, 34px);
+    letter-spacing:0.02em;
+    color:var(--ink);
+  }
+  .result-phrase.yes{ color:var(--moss); }
+  .result-phrase.no{ color:var(--wax); }
+  .result-phrase.maybe{ color:var(--amber); }
+  .result-roll{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  .result-note{
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:15px;
+    margin-top:10px;
+    max-width:440px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .roll-btn{
+    display:block;
+    margin:22px auto 40px;
+    font-family:'IM Fell English SC', serif;
+    font-size:17px;
+    letter-spacing:0.06em;
+    color:var(--paper);
+    background:var(--ink);
+    border:1px solid var(--ink);
+    padding:13px 36px;
+    border-radius:3px;
+    cursor:pointer;
+    transition:transform 0.15s ease, background 0.15s ease;
+  }
+  .roll-btn:hover{ transform:translateY(-2px); background:#33291c; }
+  .roll-btn:active{ transform:translateY(0); }
+  .roll-btn:disabled{ opacity:0.5; cursor:default; transform:none; }
+  .roll-btn:focus-visible{ outline:2px solid var(--amber); outline-offset:3px; }
+
+  /* Ledger */
+  .ledger{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .ledger-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:13px 18px;
+    border-bottom:1px solid var(--rule);
+  }
+  .ledger-head h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0;
+    font-weight:500;
+  }
+  .clear-btn{
+    background:none;
+    border:1px solid var(--rule);
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    padding:5px 10px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  .clear-btn:hover{ color:var(--ink); border-color:var(--ink-soft); }
+
+  .ledger-list{
+    list-style:none;
+    margin:0; padding:0;
+    max-height:320px;
+    overflow-y:auto;
+  }
+  .ledger-list li{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    padding:11px 18px;
+    font-size:14px;
+    border-bottom:1px solid rgba(33,29,22,0.08);
+  }
+  .ledger-list li:last-child{ border-bottom:none; }
+  .ledger-num{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-soft);
+    width:20px;
+    flex-shrink:0;
+    font-size:12px;
+  }
+  .ledger-roll{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-soft);
+    width:22px;
+    flex-shrink:0;
+    font-size:12px;
+  }
+  .ledger-phrase{
+    font-family:'IM Fell English SC', serif;
+    min-width:120px;
+    flex-shrink:0;
+  }
+  .ledger-phrase.yes{ color:var(--moss); }
+  .ledger-phrase.no{ color:var(--wax); }
+  .ledger-phrase.maybe{ color:var(--amber); }
+  .ledger-question{
+    font-style:italic;
+    color:var(--ink-soft);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    flex:1;
+  }
+  .ledger-empty{
+    padding:26px 18px;
+    text-align:center;
+    font-style:italic;
+    color:#9a8f6f;
+    font-size:15px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .die.rolling{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <header>
+    <p class="eyebrow">A D20 to Spark Your Imagination</p>
+    <h1>The Fate Mill</h1>
+    <p class="subtitle">Ask a yes-or-no question. Let the mill grind out an answer.</p>
+  </header>
+
+  <div class="question-wrap">
+    <label for="questionInput">Your Question (optional)</label>
+    <input type="text" id="questionInput" placeholder="e.g. Can I see anything down the hallway?">
+  </div>
+
+  <div class="die-wrap">
+    <div class="die" id="die">
+      <svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="75,6 138,45 138,105 75,144 12,105 12,45"
+          fill="#211d16" stroke="#efe6d2" stroke-width="1.5" stroke-opacity="0.35"/>
+        <polygon points="75,6 138,45 75,75 12,45" fill="#ffffff" fill-opacity="0.05"/>
+        <polygon points="12,105 75,75 138,105 75,144" fill="#000000" fill-opacity="0.15"/>
+        <line x1="75" y1="6" x2="75" y2="75" stroke="#efe6d2" stroke-width="1" stroke-opacity="0.2"/>
+        <line x1="12" y1="45" x2="75" y2="75" stroke="#efe6d2" stroke-width="1" stroke-opacity="0.2"/>
+        <line x1="138" y1="45" x2="75" y2="75" stroke="#efe6d2" stroke-width="1" stroke-opacity="0.2"/>
+        <line x1="12" y1="105" x2="75" y2="75" stroke="#efe6d2" stroke-width="1" stroke-opacity="0.2"/>
+        <line x1="138" y1="105" x2="75" y2="75" stroke="#efe6d2" stroke-width="1" stroke-opacity="0.2"/>
+        <line x1="75" y1="144" x2="75" y2="75" stroke="#efe6d2" stroke-width="1" stroke-opacity="0.2"/>
+      </svg>
+      <div class="die-number" id="dieNumber">20</div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-phrase" id="resultPhrase">—</div>
+    <div class="result-roll" id="resultRoll">awaiting the roll</div>
+    <div class="result-note" id="resultNote"></div>
+  </div>
+
+  <button class="roll-btn" id="rollBtn">Ask the Mill</button>
+
+  <div class="ledger">
+    <div class="ledger-head">
+      <h2>Roll Ledger · last 10</h2>
+      <button class="clear-btn" id="clearBtn">Clear</button>
+    </div>
+    <ul class="ledger-list" id="ledgerList">
+      <li class="ledger-empty" id="ledgerEmpty">No rolls yet — the mill stands still.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // Core Fate Mill D20 table, per the official directions (v1.7D)
+  function getResult(roll){
+    if(roll === 1)  return { phrase:'No, And, And', kind:'no' };
+    if(roll <= 4)   return { phrase:'No, And', kind:'no' };
+    if(roll === 5)  return { phrase:'No', kind:'no' };
+    if(roll <= 8)   return { phrase:'No, But', kind:'no' };
+    if(roll === 9)  return { phrase:'Maybe, But', kind:'maybe' };
+    if(roll <= 11)  return { phrase:'Maybe', kind:'maybe' };
+    if(roll === 12) return { phrase:'Maybe, And', kind:'maybe' };
+    if(roll <= 15)  return { phrase:'Yes, But', kind:'yes' };
+    if(roll === 16) return { phrase:'Yes', kind:'yes' };
+    if(roll <= 19)  return { phrase:'Yes, And', kind:'yes' };
+    return { phrase:'Yes, And, And', kind:'yes' };
+  }
+
+  const die = document.getElementById('die');
+  const dieNumber = document.getElementById('dieNumber');
+  const rollBtn = document.getElementById('rollBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const questionInput = document.getElementById('questionInput');
+  const resultPhrase = document.getElementById('resultPhrase');
+  const resultRoll = document.getElementById('resultRoll');
+  const resultNote = document.getElementById('resultNote');
+  const ledgerList = document.getElementById('ledgerList');
+  const ledgerEmpty = document.getElementById('ledgerEmpty');
+
+  let history = []; // most recent first, max 10
+  let tumbleTimer = null;
+
+  function renderLedger(){
+    ledgerList.innerHTML = '';
+    if(history.length === 0){
+      ledgerList.appendChild(ledgerEmpty);
+      return;
+    }
+    history.forEach((entry, i) => {
+      const li = document.createElement('li');
+
+      const num = document.createElement('span');
+      num.className = 'ledger-num';
+      num.textContent = history.length - i;
+
+      const rollSpan = document.createElement('span');
+      rollSpan.className = 'ledger-roll';
+      rollSpan.textContent = entry.roll;
+
+      const phrase = document.createElement('span');
+      phrase.className = 'ledger-phrase ' + entry.kind;
+      phrase.textContent = entry.phrase;
+
+      const question = document.createElement('span');
+      question.className = 'ledger-question';
+      question.textContent = entry.question || '';
+
+      li.appendChild(num);
+      li.appendChild(rollSpan);
+      li.appendChild(phrase);
+      li.appendChild(question);
+      ledgerList.appendChild(li);
+    });
+  }
+
+  function roll(){
+    rollBtn.disabled = true;
+    die.classList.add('rolling');
+
+    let ticks = 0;
+    clearInterval(tumbleTimer);
+    tumbleTimer = setInterval(() => {
+      dieNumber.textContent = 1 + Math.floor(Math.random() * 20);
+      ticks++;
+    }, 60);
+
+    setTimeout(() => {
+      clearInterval(tumbleTimer);
+      die.classList.remove('rolling');
+
+      const finalRoll = 1 + Math.floor(Math.random() * 20);
+      const { phrase, kind } = getResult(finalRoll);
+      const question = questionInput.value.trim();
+
+      dieNumber.textContent = finalRoll;
+      resultPhrase.textContent = phrase;
+      resultPhrase.className = 'result-phrase ' + kind;
+      resultRoll.textContent = 'rolled ' + finalRoll + ' of 20';
+      resultNote.textContent = question ? '“' + question + '”' : '';
+
+      history.unshift({ roll: finalRoll, phrase, kind, question });
+      if(history.length > 10) history.pop();
+      renderLedger();
+
+      rollBtn.disabled = false;
+    }, 850);
+  }
+
+  function clearLedger(){
+    history = [];
+    renderLedger();
+  }
+
+  rollBtn.addEventListener('click', roll);
+  clearBtn.addEventListener('click', clearLedger);
+  questionInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') roll();
+  });
+
+  renderLedger();
+</script>
+
+</body>
+</html>
